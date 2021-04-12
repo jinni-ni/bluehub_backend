@@ -62,7 +62,7 @@ def kakao_callback(request):
 
             data = {'code': user_token, 'access_token': access_token}
             accept = requests.post(
-                f"http://127.0.0.1:8000/account/login/kakao/todjango", data=data
+                f"http://127.0.0.1:8000/account/login/kakao/sociallogin/", data=data
             )
             accept_json = accept.json()
             accept_jwt = accept_json.get("token")
@@ -74,7 +74,7 @@ def kakao_callback(request):
             # 서비스에 rest-auth 로그인
             data = {'code': user_token, 'access_token': access_token}
             accept = requests.post(
-                f"http://127.0.0.1:8000/account/login/kakao/todjango", data=data
+                f"http://127.0.0.1:8000/account/login/kakao/sociallogin", data=data
             )
             accept_json = accept.json()
             accept_jwt = accept_json.get("token")
@@ -92,6 +92,6 @@ def kakao_callback(request):
     except KakaoException:
         return redirect("http://127.0.0.1:8000/account/login")
 
-class KakaoToDjangoLogin(SocialLoginView):
+class KaKaoSocialLoginView(SocialLoginView):
     adapter_class = kakao_views.KakaoOAuth2Adapter
     client_class = OAuth2Client

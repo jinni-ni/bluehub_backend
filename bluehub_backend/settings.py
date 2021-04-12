@@ -1,4 +1,5 @@
 import os
+import datetime
 import environ
 from pathlib import Path
 
@@ -29,6 +30,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    # Django Apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -37,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
 
-    # Thrid Party App
+    # Thrid Party Apps
     # restframework
     'rest_framework',
     'rest_framework.authtoken',
@@ -49,8 +51,9 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'rest_auth.registration',
 
-    # my app
+    #  Local Apps
     'accounts',
+    'recruit',
 
     # provider
     'allauth.socialaccount.providers.kakao',
@@ -142,6 +145,13 @@ REST_FRAMEWORK = {
     ],
 }
 
+JWT_AUTH = {
+    'JWT_SECRET_KEY': env('JWT_SECRET_KEY'),
+    'JWT_ALGORITHM': "HS256",
+    'JWT_ALLOW_REFRESH': True,
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=7),
+    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=28),
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
