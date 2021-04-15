@@ -14,11 +14,22 @@ class User(AbstractUser):
         (REGISTER_LOGIN_KAKAO, "Kakao"),
     )
 
+    USER_TYPE_ENTERPRISE = "enterprise"
+    USER_TYPE_WORKER = "worker"
+    USER_TYPE_METHOD = (
+        (USER_TYPE_ENTERPRISE, "Enterprise"),
+        (USER_TYPE_WORKER, "Worker"),
+    )
+
     username = None
     email = models.EmailField(_('email address'), unique=True)
+    register_user_method = models.CharField(
+        max_length=50, choices=USER_TYPE_METHOD, default=USER_TYPE_WORKER
+    )
     register_login_method = models.CharField(
         max_length=50, choices=REGISTER_LOGIN_METHOD, default=REGISTER_LOGIN_EMAIL
     )
+
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
