@@ -1,8 +1,15 @@
 from rest_framework import serializers
+from .models import Announcement
+from accounts.serializers import UserSerializer
 
-class AnnouncementSerializer(serializers.Serializer):
-    title = serializers.CharField(max_length=100)
-    company = serializers.CharField(max_length=100)
-    regDt = serializers.DateField()
-    closeDt = serializers.DateField()
-    smodifyDtm = serializers.DateField()
+class AnnouncementSerializer(serializers.ModelSerializer):
+    author = UserSerializer()
+
+    class Meta:
+        model = Announcement
+        fields = ("company", "title", "smodifyDtm", "author")
+
+class BigAnnouncementSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Announcement
+        fields = ("__all__")

@@ -1,13 +1,13 @@
-from rest_framework.decorators import api_view
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
 from .models import Announcement
-from .serializers import AnnouncementSerializer
+from .serializers import AnnouncementSerializer, BigAnnouncementSerializer
 
 
-@api_view(["GET"])
-def list_announcement(request):
-    annon = Announcement.objects.all()
-    serialized_annon = AnnouncementSerializer(annon, many=True)
-    return Response(data=serialized_annon.data)
+class ListAnnoncementView(ListAPIView):
+    queryset = Announcement.objects.all()
+    serializer_class = AnnouncementSerializer
 
-
+class SeeAnnouncmentView(RetrieveAPIView):
+    queryset = Announcement.objects.all()
+    serializer_class = BigAnnouncementSerializer
