@@ -19,10 +19,8 @@ def kakao_login(request):
                    f"redirect_uri={redirect_uri}&response_type=code"
     return redirect(redirect_url)
 
-
 class KakaoException(Exception):
     pass
-
 # access token 요청
 def kakao_callback(request):
     try:
@@ -81,11 +79,10 @@ def kakao_callback(request):
 
             user = User.objects.create(
                 email=email,
-                register_login_method = User.REGISTER_LOGIN_KAKAO
+                register_login_method=User.REGISTER_LOGIN_KAKAO
             )
             user.set_unusable_password()
             user.save()
-
 
         return redirect("http://127.0.0.1:8000/")  # 메인 페이지
 

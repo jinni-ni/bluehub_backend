@@ -6,8 +6,6 @@ from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, verify
 
 from .views import kakao_login, kakao_callback, KaKaoSocialLoginView
 
-app_name='account'
-
 urlpatterns = [
     # 로그인
     path('', include('rest_auth.urls')),
