@@ -1,98 +1,60 @@
-from rest_framework import status
-
-from rest_framework.generics import ListAPIView, RetrieveAPIView
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
+from rest_framework import permissions
+from rest_framework.decorators import action
 
 from .models import Announcement
-from .serializers import AnnouncementSerializer, BigAnnouncementSerializer, WriteAnnouncementSerializer
+from .serializers import AnnouncementSerializer
+from .permissions import IsOwner
 
 
-@api_view(["GET", "POST"])
-def ann_view(request):
-    if request.method == 'GET':
-        anns = Announcement.objects.all()
-        serializer = AnnouncementSerializer(anns, many=True).data
-        return Response(serializer)
-
-    elif request.method == 'POST':
-        if not request.user.is_authenticated:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
-        serializer = WriteAnnouncementSerializer(data=request.data)
-        print(dir(serializer))
-        if serializer.is_valid():
-            annon = serializer.save(author=request.user)
-            annon_serializer = AnnouncementSerializer(annon).data
-            return Response(data=annon_serializer, status=status.HTTP_201_CREATED)
-        else:
-            return Response(data=serializer.errors ,status=status.HTTP_400_BAD_REQUEST)
-
-
-class AnnoncsView(APIView):
-    def get(self, request):
-        anns = Announcement.objects.all()
-        serializer = AnnouncementSerializer(anns, many=True).data
-        return Response(serializer)
-
-    def post(self, request):
-        if not request.user.is_authenticated:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
-        serializer = WriteAnnouncementSerializer(data=request.data)
-        print(dir(serializer))
-        if serializer.is_valid():
-            annon = serializer.save(author=request.user)
-            annon_serializer = AnnouncementSerializer(annon).data
-            return Response(data=annon_serializer, status=status.HTTP_201_CREATED)
-        else:
-            return Response(data=serializer.errors ,status=status.HTTP_400_BAD_REQUEST)
-
-
-class ListAnnoncementView(ListAPIView):
+class AnnouncementViewSet(ModelViewSet):
     queryset = Announcement.objects.all()
     serializer_class = AnnouncementSerializer
 
-class SeeAnnouncmentView(RetrieveAPIView):
-    queryset = Announcement.objects.all()
-    serializer_class = BigAnnouncementSerializer
+    def get_permissions(self):
+        print(self.action)
+        if self.action == 'list' or self.action == 'retrieve':
+            permission_classes = [permissions.AllowAny]
+        elif self.action == 'create':
+            permission_classes = [permissions.IsAdminUser]
+        else:
+            permission_classes = [IsOwner]
 
-class AnnoncView(APIView):
-    def get_annon(self, pk):
+        return [permission() for permission in permission_classes]
+
+    @action(detail=False)
+    def search(self, request):
+        # search 로 통합
+        #title = request.GET.get('title', None)
+        #company = request.GET.get('company', None)
+        search = request.GET.get('search', None)
+        basicAddr = request.GET.get('basicAddr', None)
+        sal = request.GET.get('sal', None)
+        closeDt = request.GET.get('closeDt', None)
+
+        filter_kwargs = {}
+
+        if search is not None:
+            filter_kwargs["title__icontains"] = search
+            filter_kwargs["company__icontains"] = search
+
+        if basicAddr is not None:
+            filter_kwargs["basicAddr__icontains"] = basicAddr
+
+        if sal is not None:
+            filter_kwargs["sal__gte"] = sal
+
+        if closeDt is not None:
+            filter_kwargs["closeDt__gte"] = closeDt
+
+        paginator = self.paginator
+        paginator.page_size = 20
+
         try:
-            annon = Announcement.objects.get(pk=pk)
-            return annon
-        except Announcement.DoesNotExist:
-            return None
+            anno = Announcement.objects.filter(**filter_kwargs)
+        except ValueError:
+            anno = Announcement.objects.all()
 
-    def get(self, request, pk):
-        annon = self.get_annon(pk)
-        if annon is not None:
-            serializer = AnnouncementSerializer(annon).data
-            return Response(serializer)
-        else:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-    def put(self, request, pk):
-        annon = self.get_annon(pk)
-        if annon is not None:
-            if annon.author != request.user:
-                return Response(status=status.HTTP_401_UNAUTHORIZED)
-            serializer = WriteAnnouncementSerializer(annon, data=request.data, partial=True)
-            #print(serializer.is_valid(), serializer.errors)
-            if serializer.is_valid():
-                annon= serializer.save()
-                return Response(AnnouncementSerializer(annon).data, status=status.HTTP_200_OK)
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-    def delete(self, request, pk):
-        annon = self.get_annon(pk)
-        if annon is not None:
-            if annon.author != request.user:
-                return Response(status=status.HTTP_401_UNAUTHORIZED)
-            annon.delete()
-            return Response(status=status.HTTP_200_OK)
-        else:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+        results = paginator.paginate_queryset(anno, request)
+        serializers = AnnouncementSerializer(results, many=True, context={'request': request})
+        return paginator.get_paginated_response(serializers.data)

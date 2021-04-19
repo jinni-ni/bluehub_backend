@@ -17,9 +17,9 @@ class Announcement(TimeStampedModel):
     busino = models.TextField(blank=True) # 사업자등록번호
     title = models.CharField(max_length=200) # 제목
     salTpNm = models.TextField(blank=True) # 임금형태
-    sal = models.TextField(blank=True) # 급여
-    minSal = models.TextField(blank=True) # 최소임금
-    maxSal = models.TextField(blank=True) # 최대임금
+    sal = models.IntegerField() # 급여
+    minSal = models.IntegerField(blank=True, null=True) # 최소임금
+    maxSal = models.IntegerField(blank=True, null=True) # 최대임금
     region = models.CharField(max_length=100, blank=True) # 근무지역
     holidayTpNm = models.TextField(blank=True) # 근무형태
     minEdubg = models.TextField(blank=True) # 최소학력
@@ -37,6 +37,7 @@ class Announcement(TimeStampedModel):
     jobsCd = models.IntegerField(blank=True, null=True) # 직종코드
     smodifyDtm = models.DateField(blank=True, null=True) # 최종수정일
     prefCd = models.TextField(blank=True) # 우대조건
+    explain = models.TextField(blank=True) # 설명
 
     caption = models.TextField(max_length=500, blank=True)
     tag_set = models.ManyToManyField('Tag', blank=True)
@@ -56,9 +57,6 @@ class Announcement(TimeStampedModel):
     # TODO : get_absolute_url - post 후 detail로 redirect
     # def get_absolute_url(self):
     #     return reverse("recruit:announcement_detail", args=[self.pk])
-
-    def is_like_user(self, user):
-        return self.like_user_set.filter(pk=user.pk).exists()
 
     class Meta:
         ordering = ['-closeDt']
