@@ -13,14 +13,14 @@ class TimeStampedModel(models.Model):
 class Announcement(TimeStampedModel):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     wantedAuthNo = models.TextField(blank=True) # 구인인증번호
-    company = models.TextField() # 회사명
+    company = models.CharField(max_length=100) # 회사명
     busino = models.TextField(blank=True) # 사업자등록번호
-    title = models.TextField() # 제목
+    title = models.CharField(max_length=200) # 제목
     salTpNm = models.TextField(blank=True) # 임금형태
-    sal = models.TextField(blank=True) #급여
+    sal = models.TextField(blank=True) # 급여
     minSal = models.TextField(blank=True) # 최소임금
     maxSal = models.TextField(blank=True) # 최대임금
-    region = models.TextField(blank=True) # 근무지역
+    region = models.CharField(max_length=100, blank=True) # 근무지역
     holidayTpNm = models.TextField(blank=True) # 근무형태
     minEdubg = models.TextField(blank=True) # 최소학력
     maxEdubg = models.TextField(blank=True) # 최대학력
