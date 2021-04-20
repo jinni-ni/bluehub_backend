@@ -1,14 +1,15 @@
-import jwt
 from django.conf import settings
-from django.http import JsonResponse
-
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.kakao import views as kakao_views
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 import requests
 from django.shortcuts import redirect
 from .models import User
-
+from recruit.serializers import AnnouncementSerializer
+from recruit.models import Announcement
+from rest_framework import status
 import urllib
 
 # code 요청
@@ -92,3 +93,26 @@ def kakao_callback(request):
 class KaKaoSocialLoginView(SocialLoginView):
     adapter_class = kakao_views.KakaoOAuth2Adapter
     client_class = OAuth2Client
+
+
+class FavsView(APIView):
+    def get(self, request):
+        user = request.user
+        serializer = AnnouncementSerializer(user.favs.all(), many=True).data
+        return Response(serializer)
+
+    def put(self, request):
+        pk = request.data.get("pk", None)
+        user = request.user
+        if pk is not None:
+            try:
+                annon = Announcement.objects.get(pk=pk)
+                if annon in user.favs.all():
+                    user.favs.remove(annon)
+                else:
+                    user.favs.add(annon)
+                return Response(AnnouncementSerializer(user.favs.all(), many=True).data)
+                # user.save()
+            except Announcement.DoesNotExist:
+                pass
+        return Response(status=status.HTTP_400_BAD_REQUEST)
