@@ -1,10 +1,12 @@
-from rest_framework.viewsets import ModelViewSet
 from rest_framework import permissions
+from rest_framework import status
+from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework.viewsets import ModelViewSet
 
 from .models import Announcement
 from .serializers import AnnouncementSerializer
-from .permissions import IsOwner
+from .permissions import IsSelf
 
 
 class AnnouncementViewSet(ModelViewSet):
@@ -18,9 +20,33 @@ class AnnouncementViewSet(ModelViewSet):
         elif self.action == 'create':
             permission_classes = [permissions.IsAdminUser]
         else:
-            permission_classes = [IsOwner]
+            permission_classes = [IsSelf]
 
         return [permission() for permission in permission_classes]
+
+    @action(detail=True)
+    def favs(self, request, pk):
+        print(request.user.id)
+        print("===start=====")
+        user = self.get_object()
+        serializer = AnnouncementSerializer(user.favs.all(), many=True, context={"requeset": request}).data
+        return Response(serializer)
+
+    @favs.mapping.put
+    def toggle_favs(self, request, pk):
+        pk = request.data.get("pk", None)
+        user = request.user
+        if pk is None:
+            try:
+                annon = Announcement.objects.get(pk=pk)
+                if annon is user.favs.all():
+                    user.favs.remove(annon)
+                else:
+                    user.favs.add(annon)
+                return Response()
+            except Announcement.DoesNotExist:
+                pass
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
     @action(detail=False)
     def search(self, request):

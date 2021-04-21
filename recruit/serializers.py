@@ -4,14 +4,14 @@ from accounts.serializers import UserSerializer
 
 class AnnouncementSerializer(serializers.ModelSerializer):
     author = UserSerializer()
-    is_favs = serializers.SerializerMethodField("is_favs_field")
+    is_favs = serializers.SerializerMethodField()
 
     class Meta:
         model = Announcement
-        fields = ("title", "company", "basicAddr", "sal", "closeDt", "regDt", "explain", "is_favs", "author")
+        fields = ("id", "title", "company", "basicAddr", "sal", "regDt", "closeDt", "explain", "region", "is_favs", "author")
 
         # no validate
-        read_only_fields = ('author', 'id', 'created', 'updated')
+        read_only_fields = ('author', 'created', 'updated')
 
     def validate(self, data):
         # update
@@ -29,8 +29,10 @@ class AnnouncementSerializer(serializers.ModelSerializer):
 
         return data
 
-    def is_favs_field(self, post):
-        if 'request' in self.context:
-            user = self.context["request"].user
-            return post.like_user_set.filter(pk=user.pk).exists()
+    def get_is_favs(self, obj):
+        request = self.context.get('request')
+        if request:
+            user = request.user
+            if user.is_authenticated:
+                return obj in user.favs.all()
         return False

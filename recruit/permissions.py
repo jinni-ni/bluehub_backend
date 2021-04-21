@@ -5,3 +5,6 @@ class IsOwner(BasePermission):
         return obj.author == request.user
 
 
+class IsSelf(BasePermission):
+    def has_object_permission(self, request, view, user):
+        return user == request.user
