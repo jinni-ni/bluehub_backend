@@ -1,16 +1,18 @@
 from django.conf import settings
+from django.shortcuts import redirect
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_auth.registration.views import SocialLoginView
+
 from allauth.socialaccount.providers.kakao import views as kakao_views
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
-import requests
-from django.shortcuts import redirect
+
 from .models import User
-from recruit.serializers import AnnouncementSerializer
 from recruit.models import Announcement
-from rest_framework import status
-import urllib
+from recruit.serializers import AnnouncementSerializer
+
+import requests
 
 # code 요청
 def kakao_login(request):

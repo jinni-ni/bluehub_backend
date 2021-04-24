@@ -14,7 +14,7 @@ class AnnouncementViewSet(ModelViewSet):
     serializer_class = AnnouncementSerializer
 
     def get_permissions(self):
-        print(self.action)
+        # print(self.action)
         if self.action == 'list' or self.action == 'retrieve':
             permission_classes = [permissions.AllowAny]
         elif self.action == 'create':
@@ -23,30 +23,6 @@ class AnnouncementViewSet(ModelViewSet):
             permission_classes = [IsSelf]
 
         return [permission() for permission in permission_classes]
-
-    @action(detail=True)
-    def favs(self, request, pk):
-        print(request.user.id)
-        print("===start=====")
-        user = self.get_object()
-        serializer = AnnouncementSerializer(user.favs.all(), many=True, context={"requeset": request}).data
-        return Response(serializer)
-
-    @favs.mapping.put
-    def toggle_favs(self, request, pk):
-        pk = request.data.get("pk", None)
-        user = request.user
-        if pk is None:
-            try:
-                annon = Announcement.objects.get(pk=pk)
-                if annon is user.favs.all():
-                    user.favs.remove(annon)
-                else:
-                    user.favs.add(annon)
-                return Response()
-            except Announcement.DoesNotExist:
-                pass
-        return Response(status=status.HTTP_404_NOT_FOUND)
 
     @action(detail=False)
     def search(self, request):

@@ -4,7 +4,7 @@ from django.conf.urls import url
 from allauth.account.views import confirm_email
 from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, verify_jwt_token
 
-from .views import kakao_login, kakao_callback, KaKaoSocialLoginView
+from .views import kakao_login, kakao_callback, KaKaoSocialLoginView, FavsView
 
 urlpatterns = [
     # 로그인
@@ -21,4 +21,6 @@ urlpatterns = [
     path('token/', obtain_jwt_token),
     path('token/refresh/', refresh_jwt_token),
     path('token/verify/', verify_jwt_token),
+
+    path('favs/', FavsView.as_view(), name='favs'),
 ]

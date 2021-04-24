@@ -46,10 +46,6 @@ class Announcement(TimeStampedModel):
     def __str__(self):
         return self.title
 
-    # TODO : get_absolute_url - post 후 detail로 redirect
-    # def get_absolute_url(self):
-    #     return reverse("recruit:announcement_detail", args=[self.pk])
-
     class Meta:
         ordering = ['-closeDt']
 
