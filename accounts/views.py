@@ -62,9 +62,8 @@ def kakao_callback(request):
                 raise KakaoException()
 
             data = {'code': user_token, 'access_token': access_token}
-            accept = requests.post(
-                f"http://127.0.0.1:8000/account/login/kakao/sociallogin/", data=data
-            )
+            accept_url = f"http://{settings.DOMAIN}/account/login/kakao/sociallogin/"
+            accept = requests.post(accept_url, data=data)
             accept_json = accept.json()
             accept_jwt = accept_json.get("token")
 
@@ -74,9 +73,8 @@ def kakao_callback(request):
         except User.DoesNotExist:
             # 서비스에 rest-auth 로그인
             data = {'code': user_token, 'access_token': access_token}
-            accept = requests.post(
-                f"http://127.0.0.1:8000/account/login/kakao/sociallogin", data=data
-            )
+            accept_url = f"http://{settings.DOMAIN}/account/login/kakao/sociallogin/"
+            accept = requests.post(accept_url, data=data)
             accept_json = accept.json()
             accept_jwt = accept_json.get("token")
 
@@ -87,10 +85,12 @@ def kakao_callback(request):
             user.set_unusable_password()
             user.save()
 
-        return redirect("http://127.0.0.1:8000/")  # 메인 페이지
+        main_url = f"http://{settings.DOMAIN}/"
+        return redirect(main_url)  # 메인 페이지
 
     except KakaoException:
-        return redirect("http://127.0.0.1:8000/account/login")
+        except_url = f"http://{settings.DOMAIN}/api/v1/account/login/"
+        return redirect(except_url)
 
 class KaKaoSocialLoginView(SocialLoginView):
     adapter_class = kakao_views.KakaoOAuth2Adapter
