@@ -8,7 +8,7 @@ class AnnouncementSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Announcement
-        fields = ("id", "title", "company", "basicAddr", "sal", "regDt", "closeDt", "explain", "region", "is_favs", "author")
+        fields = ("id", "title", "company", "basicAddr", "sal", "regDt", "closeDt", "explain", "region", "is_favs", "author", "tag_set")
 
         # no validate
         read_only_fields = ('author', 'created', 'updated')
